@@ -172,3 +172,6 @@ export default function() {
     http.get("http://host.docker.internal:5000/health")
 }
 ```
+
+## Go Packages
+- redis [https://pkg.go.dev/github.com/redis/go-redis/v9](https://pkg.go.dev/github.com/redis/go-redis/v9)

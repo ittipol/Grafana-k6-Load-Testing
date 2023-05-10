@@ -1,10 +1,10 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"go-load-testing/database"
 	"go-load-testing/repositories"
+	"go-load-testing/services"
 	"strings"
 	"time"
 
@@ -30,29 +30,16 @@ func main() {
 
 	initTimeZone()
 
+	db := initDbConnection()
 	redisClient := initRedisConnection()
 
-	err := redisClient.Set(context.Background(), "foo", "bar", 0).Err()
-	if err != nil {
-		panic(err)
-	}
-
-	// any := 1
-
-	// Mysql
-	db := initDbConnection()
-
-	productRepositoryDbRepo := repositories.NewProductRepositoryDB(db)
+	// productRepositoryDbRepo := repositories.NewProductRepositoryDB(db)
 	// productMongoDbRepo := repositories.NewProductMongoDB(any)
-	// productRedisRepo := repositories.NewProductRedis(any)
+	productRedisRepo := repositories.NewProductRepositoryRedis(db, redisClient)
 
-	// services.NewProductService(productMongoDbRepo)
+	productService := services.NewProductService(productRedisRepo)
 
-	// _ = productRepositoryDbRepo
-
-	products, _ := productRepositoryDbRepo.GetProduct()
-
-	fmt.Println(products)
+	productService.GetProduct()
 
 	// app := fiber.New()
 

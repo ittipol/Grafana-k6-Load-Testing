@@ -9,10 +9,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetMongoDbConnection(username string, password string, hostName string, port int) *mongo.Client {
+func GetMongoDbConnection(username string, password string, host string, port int) *mongo.Client {
 	// mongodb://root:1234@localhost:27017/
 
-	dsn := fmt.Sprintf("mongodb://%v:%v@%v:%v", username, password, hostName, password)
+	dsn := fmt.Sprintf("mongodb://%v:%v@%v:%v", username, password, host, password)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()

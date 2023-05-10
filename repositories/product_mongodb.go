@@ -1,12 +1,12 @@
 package repositories
 
 type productRepositoryMongoDB struct {
-	// Product
-	db interface{}
+	Product
+	// db interface{}
 }
 
-func NewProductRepositoryMongoDB(db interface{}) Product {
-	return &productRepositoryMongoDB{db}
+func NewProductRepositoryMongoDB() Product {
+	return &productRepositoryMongoDB{}
 }
 
 func (obj productRepositoryMongoDB) GetProduct() ([]product, error) {
