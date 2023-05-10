@@ -1,49 +1,69 @@
 version: '3.8'
 
 services:
-
-  # redis:
-  #   build: ./redis
-  #   container_name: redis
-  #   ports:
-  #     - 6379:6379
+  # k6:
+  #   image: loadimpact/k6
+  #   container_name: k6
+  #   environment:
+  #     - K6_OUT=influxdb=http://influxdb:8086/k6
   #   volumes:
-  #     - ./data/redis:/data
+  #     - ./scripts:/scripts
 
-  k6:
-    image: loadimpact/k6
-    container_name: k6
-    environment:
-      - K6_OUT=influxdb=http://influxdb:8086/k6
-    volumes:
-      - ./scripts:/scripts
+  # influxdb:
+  #   # image: influxdb:2.7.1
+  #   image: influxdb:1.8.10
+  #   container_name: influxdb
+  #   environment:
+  #     - INFLUXDB_DB=k6
+  #     - INFLUXDB_HTTP_MAX_BODY_SIZE=0
+  #     # - INFLUXDB_ADMIN_USER=${INFLUXDB_USERNAME}
+  #     # - INFLUXDB_ADMIN_PASSWORD=${INFLUXDB_PASSWORD}
+  #   ports:
+  #     - 8086:8086
+  #   volumes:
+  #     - ./data/influxdb:/var/lib/influxdb
 
-  influxdb:
-    # image: influxdb:2.7.1
-    image: influxdb:1.8.10
-    container_name: influxdb
-    environment:
-      - INFLUXDB_DB=k6
-      - INFLUXDB_HTTP_MAX_BODY_SIZE=0
-      # - INFLUXDB_ADMIN_USER=${INFLUXDB_USERNAME}
-      # - INFLUXDB_ADMIN_PASSWORD=${INFLUXDB_PASSWORD}
+  # grafana:
+  #   image: grafana/grafana
+  #   container_name: grafana
+  #   environment:
+  #     - GF_AUTH_ANONYMOUS_ENABLED=true
+  #     - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+  #     # - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+  #     # - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - ./data/grafana:/var/lib/grafana
+
+  # db:
+  #   image: mysql:8.0
+  #   container_name: mysql
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 1234
+  #     MYSQL_DATABASE: test_db
+  #   # volumes:
+  #   #   - ./database:/docker-entrypoint-initdb.d
+  #   ports:
+  #     - 3306:3306
+  
+  redis:
+    build: ./redis
+    container_name: redis
     ports:
-      - 8086:8086
+      - 6379:6379
     volumes:
-      - ./data/influxdb:/var/lib/influxdb
+      - ./data/redis:/data
 
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      # - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
-      # - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
-    ports:
-      - 3000:3000
-    volumes:
-      - ./data/grafana:/var/lib/grafana
+  # mongo:
+  #   image: mongo
+  #   restart: always
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: 1234
+  #   ports:
+  #     - 27017:27017
 
   # busybox:
   #   image: busybox

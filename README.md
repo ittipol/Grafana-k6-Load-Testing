@@ -64,10 +64,103 @@ appendonly yes
 save ""
 ```
 
+## Redis command
+- https://redis.io/commands/
+
+``` bash
+AUTH
+
+CLIENT CACHING
+
+CLIENT GETNAME
+
+CLIENT GETREDIR
+
+CLIENT ID
+
+CLIENT INFO
+
+CLIENT KILL
+
+CLIENT LIST
+
+CLIENT NO-EVICT
+
+CLIENT NO-TOUCH
+
+CLIENT PAUSE
+
+CLIENT REPLY
+
+CLIENT SETINFO
+
+CLIENT SETNAME
+
+CLIENT TRACKING
+
+CLIENT TRACKINGINFO
+
+CLIENT UNBLOCK
+
+CLIENT UNPAUSE
+
+ECHO
+
+HELLO
+
+PING
+
+QUIT
+
+RESET
+
+SELECT
+```
+
+## Redis client for Go
+- https://redis.io/resources/clients/#go
+### To install go-redis/v9:
+``` bash
+go get github.com/redis/go-redis/v9
+```
+### To connect to a Redis server:
+``` go
+import (
+	"context"
+	"fmt"
+	"github.com/redis/go-redis/v9"
+)
+
+client := redis.NewClient(&redis.Options{
+	Addr:	  "localhost:6379",
+	Password: "", // no password set
+	DB:		  0,  // use default DB
+})
+```
+
+### Another way to connect is using a connection string.
+``` go
+opt, err := redis.ParseURL("redis://<user>:<pass>@localhost:6379/<db>")
+if err != nil {
+	panic(err)
+}
+
+client := redis.NewClient(opt)
+```
+
 ## k6 test script
 k6 use javascript ES6 to create test script
 ``` javascript
 // usage
-// host.docker.internal = connect service outside container
-http.get("http://host.docker.internal:5000/health")
+import http from 'k6/http'
+
+export let options = {
+    vus: 5,
+    duration: '10s'
+}
+
+export default function() {
+    // host.docker.internal = connect service outside container
+    http.get("http://host.docker.internal:5000/health")
+}
 ```
