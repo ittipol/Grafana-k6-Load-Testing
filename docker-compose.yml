@@ -2,34 +2,35 @@ version: '3.8'
 
 services:
 
-  redis:
-    build: ./redis
-    container_name: redis
-    ports:
-      - 6379:6379
-    volumes:
-      - ./data/redis:/data
+  # redis:
+  #   build: ./redis
+  #   container_name: redis
+  #   ports:
+  #     - 6379:6379
+  #   volumes:
+  #     - ./data/redis:/data
 
   k6:
     image: loadimpact/k6
     container_name: k6
     environment:
-      - K6_OUT=influxdb=http://influxdb:8086/metrics
+      - K6_OUT=influxdb=http://influxdb:8086/k6
     volumes:
       - ./scripts:/scripts
 
   influxdb:
-    image: influxdb:2.7.1
-    # image: influxdb:1.8.10
+    # image: influxdb:2.7.1
+    image: influxdb:1.8.10
     container_name: influxdb
     environment:
       - INFLUXDB_DB=k6
+      - INFLUXDB_HTTP_MAX_BODY_SIZE=0
       # - INFLUXDB_ADMIN_USER=${INFLUXDB_USERNAME}
       # - INFLUXDB_ADMIN_PASSWORD=${INFLUXDB_PASSWORD}
     ports:
       - 8086:8086
     volumes:
-      - ./data/influxdb:/var/lib/influxdb2
+      - ./data/influxdb:/var/lib/influxdb
 
   grafana:
     image: grafana/grafana
@@ -47,4 +48,9 @@ services:
   # busybox:
   #   image: busybox
   #   container_name: busybox
+  #   command: tail -F anyFile
+
+  # curl:
+  #   image: curlimages/curl:8.00.1
+  #   container_name: curl
   #   command: tail -F anyFile

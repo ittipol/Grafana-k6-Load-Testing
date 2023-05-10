@@ -1,0 +1,21 @@
+duration : เวลาที่จะใช้ทดสอบ (ในที่นี้ไม่ได้ระบุ จึงไม่ได้ใช้)
+iterations : จำนวนครั้ง request ที่ใช้ทดสอบ (ในที่นี้ไม่ได้ระบุ จึงเป็นค่า 1)
+vus : ย่อมาจาก virtual user หรือการจำลองคนใช้งาน 1 คน (ในที่นี้ไม่ได้ระบุ จึงเป็นค่า 1)
+max : คือจำนวน vus มากที่สุดที่จะใช้ทดสอบ โดยจะใช้ระบุคู่กับ duration เท่านั้น (ในที่นี้ไม่ได้ระบุ จึงเป็นค่า 1) และในการทำ stage จะใช้ชื่อว่า target
+data_received : จำนวน Byte ที่มีการรับกลับมาจากการทดสอบ
+data_sent : จำนวน Byte ที่มีการส่งออกไปเพื่อทดสอบ
+http_req_duration : จำนวนเวลารวมที่มีการ request ทดสอบ (ผลรวมของ http_req_sending + http_req_waiting + http_req_receiving)
+http_reqs : จำนวนครั้งที่มี request ในช่วงเวลา duration ที่กำหนด
+
+https://siamchamnankit.co.th/%E0%B9%81%E0%B8%99%E0%B8%B0%E0%B8%99%E0%B8%B3-k6-%E0%B8%AA%E0%B8%B3%E0%B8%AB%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%97%E0%B8%B3-load-testing-%E0%B9%81%E0%B8%A5%E0%B8%B0-automation-testing-43774a041c6f
+Ex. k6 run command
+
+กำหนดให้ vus เป็น 10 และ duration time เป็น 30 วินาที
+k6 run --vus 10 --duration 30s k6-script.js
+
+กำหนดให้ vus เป็น 10 และขยับขึ้นไปที่ 20 ภายในเวลา 30 วินาที
+k6 run --vus 10 --duration 30s --max 20 k6-script.js
+
+กำหนดให้ vus เป็น 10 และ iteration เป็น 100 ครั้ง (หมายถึง 1 vus ทำการ request 10 ครั้ง)
+k6 run --vus 10 --iterations 100 k6-script.js
+
