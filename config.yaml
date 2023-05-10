@@ -1,5 +1,21 @@
 database:
+  username: root
+  password: 1234
+  host: localhost
+  port: 3306
+  db: test_db
 
 redis:
+  username: 
+  password: password
+  host: localhost
+  port: 6379
+  db: 0
+
 
 mongodb:
+  username: root
+  password: 1234
+  host: localhost
+  port: 27017
+  db: 

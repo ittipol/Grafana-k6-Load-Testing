@@ -1,19 +1,48 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"go-load-testing/database"
+	"go-load-testing/repositories"
+	"strings"
 	"time"
+
+	"github.com/redis/go-redis/v9"
+	"github.com/spf13/viper"
+	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
 )
+
+func init() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
+}
 
 func main() {
 
 	initTimeZone()
+
+	redisClient := initRedisConnection()
+
+	err := redisClient.Set(context.Background(), "foo", "bar", 0).Err()
+	if err != nil {
+		panic(err)
+	}
+
 	// any := 1
 
 	// Mysql
-	// dsn := "root:1234@tcp(127.0.0.1:3306)/test_db?charset=utf8mb4&parseTime=True&loc=Local"
-	// db := database.GetDbConnection(dsn, false)
+	db := initDbConnection()
 
-	// productRepositoryDbRepo := repositories.NewProductRepositoryDB(db)
+	productRepositoryDbRepo := repositories.NewProductRepositoryDB(db)
 	// productMongoDbRepo := repositories.NewProductMongoDB(any)
 	// productRedisRepo := repositories.NewProductRedis(any)
 
@@ -21,9 +50,9 @@ func main() {
 
 	// _ = productRepositoryDbRepo
 
-	// products, _ := productRepositoryDbRepo.GetProduct()
+	products, _ := productRepositoryDbRepo.GetProduct()
 
-	// fmt.Println(products)
+	fmt.Println(products)
 
 	// app := fiber.New()
 
@@ -50,4 +79,34 @@ func initTimeZone() {
 
 	// timeInUTC := time.Date(2018, 8, 30, 12, 0, 0, 0, time.UTC)
 	// fmt.Println(timeInUTC.In(location))
+}
+
+func initDbConnection() *gorm.DB {
+	return database.GetDbConnection(
+		viper.GetString("database.username"),
+		viper.GetString("database.password"),
+		viper.GetString("database.host"),
+		viper.GetInt("database.port"),
+		viper.GetString("database.db"),
+		false,
+	)
+}
+
+func initRedisConnection() *redis.Client {
+	return database.GetRedisConnection(
+		viper.GetString("redis.username"),
+		viper.GetString("redis.password"),
+		viper.GetString("redis.host"),
+		viper.GetInt("redis.port"),
+		viper.GetInt("redis.db"),
+	)
+}
+
+func initMongoDbConnection() *mongo.Client {
+	return database.GetMongoDbConnection(
+		viper.GetString("redis.username"),
+		viper.GetString("redis.password"),
+		viper.GetString("redis.host"),
+		viper.GetInt("redis.port"),
+	)
 }

@@ -6,15 +6,15 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func GetRedisConnection() {
+func GetRedisConnection(username string, password string, hostName string, port int, db int) *redis.Client {
 	// redis://<user>:<pass>@localhost:6379/<db>
 
-	dsn := fmt.Sprint("redis://%v:%v@%v:%v/%v")
-
-	opt, err := redis.ParseURL("redis://<user>:<pass>@localhost:6379/<db>")
+	dsn := fmt.Sprintf("redis://%v:%v@%v:%v/%v", username, password, hostName, port, db)
+	println(dsn)
+	opt, err := redis.ParseURL(dsn)
 	if err != nil {
 		panic(err)
 	}
 
-	client := redis.NewClient(opt)
+	return redis.NewClient(opt)
 }

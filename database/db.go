@@ -20,15 +20,11 @@ func (sqlLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql stri
 	fmt.Printf("%v \n===============================\n", sql)
 }
 
-var Conn *gorm.DB
+func GetDbConnection(username string, password string, hostName string, port int, db string, dryRun bool) *gorm.DB {
+	// root:1234@tcp(127.0.0.1:3306)/test_db?charset=utf8mb4&parseTime=True&loc=Local
 
-func Init(dsn string) {
-	Conn = GetDbConnection(dsn, false)
-}
+	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local", username, password, hostName, port, db)
 
-func GetDbConnection(dsn string, dryRun bool) *gorm.DB {
-
-	// dial := postgres.Open(dsn)
 	dial := mysql.Open(dsn)
 
 	conn, err := gorm.Open(dial, &gorm.Config{
@@ -44,3 +40,22 @@ func GetDbConnection(dsn string, dryRun bool) *gorm.DB {
 
 	return conn
 }
+
+// func GetConnection(dsn string, dryRun bool) *gorm.DB {
+
+// 	// dial := postgres.Open(dsn)
+// 	dial := mysql.Open(dsn)
+
+// 	conn, err := gorm.Open(dial, &gorm.Config{
+// 		Logger: &sqlLogger{},
+// 		DryRun: dryRun,
+// 	})
+
+// 	if err != nil {
+// 		panic("failed to connect database")
+// 	}
+
+// 	fmt.Println("Database Connected")
+
+// 	return conn
+// }

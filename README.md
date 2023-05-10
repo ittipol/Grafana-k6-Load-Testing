@@ -115,6 +115,14 @@ QUIT
 RESET
 
 SELECT
+
+MONITOR
+
+FLUSHALL
+
+FLUSHDB
+
+INFO
 ```
 
 ## Redis client for Go
