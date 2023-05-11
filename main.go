@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-load-testing/database"
+	"go-load-testing/encryption"
 	"go-load-testing/handlers"
 	"go-load-testing/middlewares"
 	"go-load-testing/repositories"
@@ -51,11 +52,9 @@ func main() {
 
 	// ========================================================================================
 
-	// privateKey, publicKey := encryption.GenRsaKey()
+	// privateKey, _ := encryption.GenerateRsaKeyPair()
 
-	// x := encryption.Encryption("Hello World 1234", publicKey)
-
-	// encryption.Decryption(x, privateKey, publicKey)
+	encryption.Test()
 
 	// ========================================================================================
 
@@ -88,6 +87,14 @@ func main() {
 			// Expires:  time.Now().Add(time.Minute * 30),
 			SessionOnly: true,
 		})
+
+		c.Cookie(&fiber.Cookie{
+			Name:     "public-key",
+			Value:    "Public Key",
+			HTTPOnly: true,
+			// Expires:  time.Now().Add(time.Minute * 30),
+			SessionOnly: true,
+		})
 		return c.JSON("OK")
 	})
 
@@ -106,6 +113,27 @@ func main() {
 
 		c.SendStatus(fiber.StatusOK)
 		return c.SendString(result)
+	})
+
+	app.Get("encryption", func(c *fiber.Ctx) error {
+
+		_, publicKey := encryption.GenRsaKey()
+
+		encryptedBytes := encryption.Encryption("Hello World 1234", publicKey)
+
+		type res struct {
+			ID   int
+			Key  string
+			Res  string
+			Byte []byte
+		}
+
+		return c.JSON(res{
+			ID:   1,
+			Key:  publicKey.N.String(),
+			Res:  string(encryptedBytes),
+			Byte: encryptedBytes,
+		})
 	})
 
 	// app.Get("/health", func(c *fiber.Ctx) error {
