@@ -51,6 +51,14 @@ func main() {
 
 	// ========================================================================================
 
+	// privateKey, publicKey := encryption.GenRsaKey()
+
+	// x := encryption.Encryption("Hello World 1234", publicKey)
+
+	// encryption.Decryption(x, privateKey, publicKey)
+
+	// ========================================================================================
+
 	app := fiber.New()
 
 	// Required. The key should be 32 bytes of random data in base64-encoded form.
