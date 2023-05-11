@@ -15,15 +15,9 @@ func NewProductRepositoryDB(db *gorm.DB) Product {
 	return &productRepositoryDB{db}
 }
 
-func (obj productRepositoryDB) GetProduct() (products []product, err error) {
-
-	// var products []product
+func (obj productRepositoryDB) GetProducts() (products []product, err error) {
 
 	err = obj.db.Order("quantity DESC").Limit(50).Find(&products).Error
 
 	return
-}
-
-func (obj productRepositoryDB) GetCachedProduct() (products []product, err error) {
-	return nil, nil
 }

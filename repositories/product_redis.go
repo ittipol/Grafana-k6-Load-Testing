@@ -24,35 +24,23 @@ func NewProductRepositoryRedis(db *gorm.DB, redisClient *redis.Client) Product {
 	return &productRepositoryRedis{db, redisClient}
 }
 
-func (obj productRepositoryRedis) GetCachedProduct() (products []product, err error) {
-	cachedData, err := obj.redisClient.Get(context.Background(), key).Result()
-
-	if err != nil {
-		return
-	}
-
-	err = json.Unmarshal([]byte(cachedData), &products)
-
-	return
-}
-
-func (obj productRepositoryRedis) GetProduct() (products []product, err error) {
+func (obj productRepositoryRedis) GetProducts() (products []product, err error) {
 
 	cachedData, err := obj.redisClient.Get(context.Background(), key).Result()
 	if err == redis.Nil {
 		fmt.Println("key does not exist")
 	} else if err != nil {
-		return
+		return nil, err
 	} else {
 		err = json.Unmarshal([]byte(cachedData), &products)
 
 		if err != nil {
-			return
+			return nil, err
 		}
 
 		fmt.Println("Get Products from Redis")
 
-		return
+		return products, nil
 	}
 
 	err = obj.db.Order("quantity DESC").Limit(50).Find(&products).Error
@@ -64,15 +52,15 @@ func (obj productRepositoryRedis) GetProduct() (products []product, err error) {
 	bytes, err := json.Marshal(products)
 
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	fmt.Println("Set Products to Redis")
 
 	err = obj.redisClient.Set(context.Background(), key, bytes, time.Minute*5).Err()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return
+	return products, nil
 }

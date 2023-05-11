@@ -3,11 +3,18 @@ package main
 import (
 	"fmt"
 	"go-load-testing/database"
+	"go-load-testing/handlers"
+	"go-load-testing/middlewares"
 	"go-load-testing/repositories"
 	"go-load-testing/services"
+	"log"
 	"strings"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/utils"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -33,22 +40,72 @@ func main() {
 	db := initDbConnection()
 	redisClient := initRedisConnection()
 
-	// productRepositoryDbRepo := repositories.NewProductRepositoryDB(db)
-	// productMongoDbRepo := repositories.NewProductMongoDB(any)
-	productRedisRepo := repositories.NewProductRepositoryRedis(db, redisClient)
+	// Repository
+	productRepo := repositories.NewProductRepositoryDB(db)
 
-	productService := services.NewProductService(productRedisRepo)
+	// Service
+	productService := services.NewProductServiceRedis(productRepo, redisClient)
 
-	productService.GetProduct()
+	// Handler
+	productHandler := handlers.NewProductHandler(productService)
 
-	// app := fiber.New()
+	// ========================================================================================
+
+	app := fiber.New()
+
+	// Required. The key should be 32 bytes of random data in base64-encoded form.
+	// You may run `openssl rand -base64 32` or use `encryptcookie.GenerateKey()` to generate a new key.
+	app.Use(encryptcookie.New(encryptcookie.Config{
+		Key: "l/CsrINHL9WGXZdHMPRKesn8/jdblFYyOF8Ji0SW1lU=",
+	}))
+
+	v1 := app.Group("v1", middlewares.VersionV1, logger.New(logger.Config{
+		Format: "[${time}] [${ip}]:${port} ${status} - ${latency} ${method} ${path}\n",
+	}))
+
+	v1.Post("/auth", func(c *fiber.Ctx) error {
+
+		c.Cookie(&fiber.Cookie{
+			Name:     "access-token",
+			Value:    "Access Token",
+			HTTPOnly: true,
+			// Expires:  time.Now().Add(time.Second * 30),
+			SessionOnly: true,
+		})
+
+		c.Cookie(&fiber.Cookie{
+			Name:     "refresh-token",
+			Value:    "Refresh Token",
+			HTTPOnly: true,
+			// Expires:  time.Now().Add(time.Minute * 30),
+			SessionOnly: true,
+		})
+		return c.JSON("OK")
+	})
+
+	v1.Post("/get-auth-profile", func(c *fiber.Ctx) error {
+		c.Status(fiber.StatusOK)
+		return c.SendString("value=" + c.Cookies("access-token"))
+	})
+
+	productGroup := v1.Group("product", middlewares.Logger)
+
+	productGroup.Use(middlewares.Auth).Get("/getProducts", productHandler.GetProducts)
+
+	productGroup.Get("getBy/:id/:name?", func(c *fiber.Ctx) error {
+		// Variable is now immutable
+		result := utils.CopyString(c.Params("id"))
+
+		c.SendStatus(fiber.StatusOK)
+		return c.SendString(result)
+	})
 
 	// app.Get("/health", func(c *fiber.Ctx) error {
 	// 	// time.Sleep(time.Second * 1)
 	// 	return c.JSON("OK")
 	// })
 
-	// app.Listen(":5000")
+	log.Fatal(app.Listen(":5000"))
 
 }
 

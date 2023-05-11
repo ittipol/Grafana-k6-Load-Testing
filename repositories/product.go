@@ -15,8 +15,7 @@ type product struct {
 }
 
 type Product interface {
-	GetProduct() ([]product, error)
-	GetCachedProduct() (products []product, err error)
+	GetProducts() ([]product, error)
 }
 
 func mockData(db *gorm.DB) error {
