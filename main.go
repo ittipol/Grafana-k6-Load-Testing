@@ -122,13 +122,18 @@ func main() {
 		encryptedBytes := encryption.Encryption("Hello World 1234", publicKey)
 
 		type res struct {
-			Res  string
-			Byte []byte
+			Res    string
+			Byte   []byte
+			Base64 string
 		}
 
+		// Convert the encrypted bytes to encrypted text.
+		dst := encryption.EncodeBase64(encryptedBytes)
+
 		return c.JSON(res{
-			Res:  string(encryptedBytes),
-			Byte: encryptedBytes,
+			Res:    string(encryptedBytes),
+			Byte:   encryptedBytes,
+			Base64: string(dst),
 		})
 	})
 
