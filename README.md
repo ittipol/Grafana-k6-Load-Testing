@@ -173,5 +173,10 @@ export default function() {
 }
 ```
 
+``` bash
+# run script
+docker compose run --rm k6 run /scripts/test.js
+```
+
 ## Go Packages
 - redis [https://pkg.go.dev/github.com/redis/go-redis/v9](https://pkg.go.dev/github.com/redis/go-redis/v9)

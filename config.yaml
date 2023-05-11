@@ -1,17 +1,19 @@
+app:
+  port: 5000
+
 database:
   username: root
   password: 1234
-  host: localhost
+  host: db
   port: 3306
   db: test_db
 
 redis:
   username: 
   password: password
-  host: localhost
+  host: redis
   port: 6379
   db: 0
-
 
 mongodb:
   username: root

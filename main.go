@@ -54,7 +54,7 @@ func main() {
 
 	// privateKey, _ := encryption.GenerateRsaKeyPair()
 
-	encryption.Test()
+	// encryption.Test()
 
 	// ========================================================================================
 
@@ -122,15 +122,11 @@ func main() {
 		encryptedBytes := encryption.Encryption("Hello World 1234", publicKey)
 
 		type res struct {
-			ID   int
-			Key  string
 			Res  string
 			Byte []byte
 		}
 
 		return c.JSON(res{
-			ID:   1,
-			Key:  publicKey.N.String(),
 			Res:  string(encryptedBytes),
 			Byte: encryptedBytes,
 		})
@@ -141,7 +137,7 @@ func main() {
 	// 	return c.JSON("OK")
 	// })
 
-	log.Fatal(app.Listen(":5000"))
+	log.Fatal(app.Listen(fmt.Sprintf(":%v", viper.GetInt("app.port"))))
 
 }
 

@@ -23,6 +23,11 @@ func (obj productHandler) GetProducts(c *fiber.Ctx) error {
 		return c.JSON("Error")
 	}
 
+	response := fiber.Map{
+		"status":   fiber.StatusOK,
+		"products": products,
+	}
+
 	c.Status(fiber.StatusOK)
-	return c.JSON(products)
+	return c.JSON(response)
 }
