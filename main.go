@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -41,6 +42,8 @@ func main() {
 	db := initDbConnection()
 	redisClient := initRedisConnection()
 
+	validator := validator.New()
+
 	// Repository
 	productRepo := repositories.NewProductRepositoryDB(db)
 
@@ -48,7 +51,7 @@ func main() {
 	productService := services.NewProductServiceRedis(productRepo, redisClient)
 
 	// Handler
-	productHandler := handlers.NewProductHandler(productService)
+	productHandler := handlers.NewProductHandler(productService, validator)
 
 	// ========================================================================================
 
@@ -66,7 +69,7 @@ func main() {
 		Key: "l/CsrINHL9WGXZdHMPRKesn8/jdblFYyOF8Ji0SW1lU=",
 	}))
 
-	v1 := app.Group("v1", middlewares.VersionV1, logger.New(logger.Config{
+	v1 := app.Group("/v1", middlewares.VersionV1, logger.New(logger.Config{
 		Format: "[${time}] [${ip}]:${port} ${status} - ${latency} ${method} ${path}\n",
 	}))
 
@@ -103,11 +106,12 @@ func main() {
 		return c.SendString("value=" + c.Cookies("access-token"))
 	})
 
-	productGroup := v1.Group("product", middlewares.Logger)
+	productGroup := v1.Group("/product", middlewares.Logger)
 
-	productGroup.Use(middlewares.Auth).Get("/getProducts", productHandler.GetProducts)
+	productGroup.Use("/getProducts", middlewares.Auth)
+	productGroup.Get("/getProducts", productHandler.GetProducts)
 
-	productGroup.Get("getBy/:id/:name?", func(c *fiber.Ctx) error {
+	productGroup.Get("/getBy/:id/:name?", func(c *fiber.Ctx) error {
 		// Variable is now immutable
 		result := utils.CopyString(c.Params("id"))
 
@@ -115,11 +119,11 @@ func main() {
 		return c.SendString(result)
 	})
 
-	app.Get("encryption", func(c *fiber.Ctx) error {
+	app.Get("/encryption", func(c *fiber.Ctx) error {
 
 		_, publicKey := encryption.GenRsaKey()
 
-		encryptedBytes := encryption.Encryption("Hello World 1234", publicKey)
+		encryptedBytes := encryption.Encryption("Hello World", publicKey)
 
 		type res struct {
 			Res    string
@@ -136,11 +140,6 @@ func main() {
 			Base64: string(dst),
 		})
 	})
-
-	// app.Get("/health", func(c *fiber.Ctx) error {
-	// 	// time.Sleep(time.Second * 1)
-	// 	return c.JSON("OK")
-	// })
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%v", viper.GetInt("app.port"))))
 
