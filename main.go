@@ -184,9 +184,9 @@ func initRedisConnection() *redis.Client {
 
 func initMongoDbConnection() *mongo.Client {
 	return database.GetMongoDbConnection(
-		viper.GetString("redis.username"),
-		viper.GetString("redis.password"),
-		viper.GetString("redis.host"),
-		viper.GetInt("redis.port"),
+		viper.GetString("mongodb.username"),
+		viper.GetString("mongodb.password"),
+		viper.GetString("mongodb.host"),
+		viper.GetInt("mongodb.port"),
 	)
 }
